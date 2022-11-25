@@ -1,0 +1,18 @@
+[user]
+    name = {{ .name }}
+    email = {{ .email }}
+[core]
+    excludesfile = ~/.config/git/ignore
+[pull]
+    ff = only
+[push]
+    default = simple
+[init]
+    defaultBranch = main
+
+{{- if lookPath "gh" }}
+[credential "https://github.com"]
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = !/usr/bin/gh auth git-credential
+{{- end }}

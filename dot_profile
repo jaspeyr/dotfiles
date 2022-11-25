@@ -1,0 +1,35 @@
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+
+export PATH="$PATH:$HOME/.local/bin"
+
+[[ -d $HOME/Scripts ]] && export PATH="$PATH:$HOME/Scripts"
+
+if [[ $(uname -s) = 'Darwin' ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# set EDITOR and VISUAL if not set already
+if [[ -z $EDITOR ]]; then
+    if [[ $TERM_PROGRAM = 'vscode' && $(command -v code) ]]; then
+        export EDITOR='code --wait'
+    elif [[ $(command -v vim) ]]; then
+        export EDITOR='vim'
+    fi
+fi
+if [[ -z $VISUAL ]]; then
+    export VISUAL="$EDITOR"
+fi
+
+# python
+if [[ $(command -v pip3) ]]; then
+    VIRTUAL_ENV_HOME=~/.virtualenvs
+    export PATH="$PATH:$(python3 -m site --user-base)/bin"
+fi
+
+if [ "$BASH" ]; then
+    if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+    fi
+fi

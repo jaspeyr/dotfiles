@@ -1,0 +1,140 @@
+
+" # General Settings
+
+set hidden
+set confirm
+
+set splitbelow
+set splitright
+
+set ignorecase
+set smartcase
+
+set incsearch
+set hlsearch
+
+set mouse=a
+set completeopt=menuone,noselect
+set wildmenu
+set wildmode=list:longest,full
+set updatetime=100
+
+set clipboard^=unnamed,unnamedplus
+
+let &directory = expand('~/.vim/swap//')
+set backup
+let &backupdir = expand('~/.vim/backup//')
+set undofile
+let &undodir = expand('~/.vim/undo//')
+if !isdirectory(&undodir) | call mkdir(&undodir, "p") | endif
+if !isdirectory(&backupdir) | call mkdir(&backupdir, "p") | endif
+if !isdirectory(&directory) | call mkdir(&directory, "p") | endif
+
+" change cursor shape depending on mode
+let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+
+" General Mappings
+
+let mapleader = ' '
+
+" window movement
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+tnoremap <C-J> <C-W><C-J>
+tnoremap <C-K> <C-W><C-K>
+tnoremap <C-L> <C-W><C-L>
+tnoremap <C-H> <C-W><C-H>
+
+" Y yanks to end of line like D
+nnoremap <silent> Y y$
+
+" # Editing
+
+filetype plugin indent on
+syntax enable
+
+set number
+set relativenumber
+set ruler
+set laststatus=2
+
+set wrap
+set breakindent
+
+set expandtab
+set tabstop=4
+set shiftwidth=4
+
+set autoindent
+set smartindent
+set smarttab
+
+" # Plugins
+
+if ! empty(globpath(&rtp, 'autoload/plug.vim'))
+    call plug#begin()
+
+    Plug 'tpope/vim-surround'
+    Plug 'tpope/vim-repeat'
+    Plug 'tpope/vim-commentary'
+    Plug 'junegunn/vim-easy-align'
+    Plug 'justinmk/vim-sneak'
+    Plug 'tpope/vim-rsi'
+
+    Plug 'tpope/vim-fugitive'
+    Plug 'mhinz/vim-signify'
+
+    Plug 'junegunn/fzf'
+    Plug 'junegunn/fzf.vim'
+
+    Plug 'rakr/vim-one'
+
+    call plug#end()
+endif
+
+try
+    set termguicolors
+    colorscheme one
+catch
+    colorscheme slate
+endtry
+
+if &runtimepath =~ 'Fugitive'
+    set statusline=%<%f\ %h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)\ %P
+endif
+
+if &runtimepath =~ 'EasyAlign'
+    " easyalign interactive in visual (e.g. vipga) or motion/text object (e.g. gaip)
+    xmap ga <Plug>(EasyAlign)
+    nmap ga <Plug>(EasyAlign)
+endif
+
+if &runtimepath =~ 'FZF'
+    " # Fzf
+    let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.8 } }
+    noremap <leader>f  :Files<cr>
+    noremap <leader>b  :Buffers<cr>
+    noremap <leader>l  :BLines<cr>
+    noremap <leader>L  :Lines<cr>
+    noremap <leader>m  :Marks<cr>
+    noremap <leader>gf :GFiles<cr>
+    noremap <leader>gs :GFiles?<cr>
+    noremap <leader>gc :BCommits<cr>
+    noremap <leader>gC :Commits<cr>
+    noremap <leader>/  :Rg<cr>
+    noremap <leader>?  :Commands<cr>
+    noremap <leader>,c :Colors<cr>
+    noremap <leader>,f :Filetypes<cr>
+    " Mapping selecting mappings
+    nmap <leader><tab> <plug>(fzf-maps-n)
+    xmap <leader><tab> <plug>(fzf-maps-x)
+    omap <leader><tab> <plug>(fzf-maps-o)
+    " Insert mode completion
+    imap <c-x><c-k> <plug>(fzf-complete-word)
+    imap <c-x><c-f> <plug>(fzf-complete-path)
+    imap <c-x><c-l> <plug>(fzf-complete-line)
+endif

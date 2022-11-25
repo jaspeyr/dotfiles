@@ -1,0 +1,131 @@
+source ~/.profile
+
+# prompt
+if [[ $(command -v starship) ]]; then
+    eval $(starship init zsh)
+else
+    # setup prompt with git info
+    autoload -Uz vcs_info; precmd () { vcs_info }
+    zstyle ':vcs_info:*' check-for-changes true
+    zstyle ':vcs_info:*' unstagedstr ' *'
+    zstyle ':vcs_info:*' stagedstr   ' +'
+    zstyle ':vcs_info:git:*' formats '(%b%u%c)'
+    setopt prompt_subst
+    prompt='%F{blue}%~%f ' # path
+    prompt+='%F{cyan}${vcs_info_msg_0_}%f ' # git
+    [[ -v SSH_CONNECTION ]] && prompt="%F{cyan}(%n@%m)%f $prompt" # user@hostname
+    prompt+=$'\n'
+    prompt+='%F{green}%#%f '
+fi
+
+plugins=(
+    olets/zsh-abbr
+    Aloxaf/fzf-tab
+    # keep the next three in this order
+    zsh-users/zsh-syntax-highlighting
+    zsh-users/zsh-autosuggestions
+    zsh-users/zsh-history-substring-search
+)
+
+function plugin-load {
+    # mattmc3/zsh_unplugged
+    local repo plugdir initfile
+    ZPLUGINDIR=${ZPLUGINDIR:-$HOME/.config/zsh}/plugins
+    for repo in $@; do
+        plugdir=$ZPLUGINDIR/${repo:t}
+        initfile=$plugdir/${repo:t}.plugin.zsh
+        if [[ ! -d $plugdir ]]; then
+            echo "Cloning $repo..."
+            git clone -q --depth 1 --recursive --shallow-submodules https://github.com/$repo $plugdir
+        fi
+        if [[ ! -e $initfile ]]; then
+            local -a initfiles=($plugdir/*.plugin.{z,}sh(N) $plugdir/*.{z,}sh{-theme,}(N))
+            (( $#initfiles )) || { echo >&2 "No init file found '$repo'." && continue }
+            ln -sf "${initfiles[1]}" "$initfile"
+        fi
+        fpath+=$plugdir
+        . $initfile
+    done
+}
+
+[[ $(command -v git) ]] && plugin-load $plugins
+
+# fpath
+fpath+=~/.local/share/zsh/completions
+if [[ $(uname -s) = 'Darwin' ]]; then
+    fpath+=/opt/homebrew/share/zsh/site-functions
+fi
+
+alias e='eval $EDITOR'
+
+# emacs keybindings (use C-x C-v for vim normal mode)
+bindkey -e
+
+# edit command in editor
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey "^X^E" edit-command-line
+
+setopt auto_cd
+setopt interactive_comments
+
+# consider / a word boundary
+export WORDCHARS=${WORDCHARS/\/}
+
+if (( $+functions[history-substring-search-up] )); then
+    # use history substring search with up/down and C-p/C-n
+    bindkey '^P' history-substring-search-up; bindkey '^[[A' history-substring-search-up
+    bindkey '^N' history-substring-search-down; bindkey '^[[B' history-substring-search-down
+fi
+
+# command history
+HISTFILE=~/.zsh_history
+SAVEHIST=100000; HISTSIZE=10000
+setopt share_history
+setopt extended_history
+
+# load completion system
+autoload -U compinit; compinit
+autoload -U bashcompinit; bashcompinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' use-cache on
+setopt complete_in_word 
+
+# colors
+export CLICOLOR=1 # for mac/bsd
+if [[ $(command -v dircolors) ]]; then
+    eval "$(dircolors -b)"
+elif [[ $(command -v gdircolors) ]]; then
+    eval "$(gdircolors -b)"
+fi
+if [[ -v LS_COLORS ]]; then 
+    zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+fi
+
+# fzf
+if [[ $(command -v fzf) ]]; then
+    export FZF_DEFAULT_OPTS='--reverse'
+    if (( $+functions[fzf-tab-complete] )) then
+        # set normal zsh completion to C-I/tab
+        bindkey "^I" expand-or-complete
+        # fzf completions with C-X C-I (C-X tab)
+        bindkey "^X^I" fzf-tab-complete
+    fi
+    # zsh key-bindings script locations for apt and brew
+    if [[ -d /usr/share/doc/fzf/examples ]]; then
+        source /usr/share/doc/fzf/examples/key-bindings.zsh
+    elif [[ -d /opt/homebrew/opt/fzf/shell ]]; then
+        source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
+    fi
+fi
+
+# direnv
+if [[ $(command -v direnv) ]]; then
+    eval "$(direnv hook zsh)"
+fi
+
+[[ -f ~/.zshrc_local ]] && source ~/.zshrc_local
+
+# only unique entries in path, fpath
+typeset -U path
+typeset -U fpath

@@ -1,0 +1,23 @@
+README.md
+
+{{- if not (lookPath "vim") }}
+.vimrc
+vim.sh
+{{- end }}
+
+{{- if not (lookPath "zsh") }}
+.zshrc
+.config/zsh/
+zsh.zsh
+{{- end }}
+
+{{- if not (lookPath "python3") }}
+.ipython
+python.sh
+{{- end }}
+
+{{- if ne .chezmoi.os "darwin" }}
+.Brewfile
+.hushlogin
+macos.sh
+{{- end }}
