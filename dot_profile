@@ -24,7 +24,7 @@ fi
 
 # python
 if [[ $(command -v pip3) ]]; then
-    VIRTUAL_ENV_HOME=~/.virtualenvs
+    export VIRTUAL_ENV_HOME="$HOME/.virtualenvs"
     export PATH="$PATH:$(python3 -m site --user-base)/bin"
 fi
 
