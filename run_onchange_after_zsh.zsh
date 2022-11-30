@@ -17,11 +17,3 @@ fi
 if [[ $(command -v gh )  && ! $(command -v _gh) ]]; then
     gh completion -s zsh > "$compdir/_gh"
 fi
-
-if [[ $(uname -s) = 'Darwin' ]]; then
-    docker_scripts='/Applications/Docker.app/Contents/Resources/etc'
-    if [[ -d $docker_scripts ]]; then
-        ln -sf "$docker_scripts/docker.zsh-completion" "$compdir/_docker"
-        ln -sf "$docker_scripts/docker-compose.zsh-completion" "$compdir/_docker-compose"
-    fi
-fi
