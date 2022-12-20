@@ -11,17 +11,12 @@ brew 'gnu-sed'
 brew 'gnupg'
 brew 'htop'
 brew 'jq'
+brew 'python'
 brew 'ripgrep'
+brew 'sqlite'
 brew 'starship'
 brew 'tmux'
 brew 'yq'
-
-brew 'node'
-brew 'python'
-brew 'r'
-brew 'sqlite'
-
-tap 'homebrew/services'
 
 brew 'awscli'
 brew 'gh'
@@ -55,6 +50,7 @@ cask 'stats'
 cask 'visual-studio-code'
 
 tap 'homebrew/cask-fonts'
+cask 'font-cascadia-code'
 cask 'font-fira-code'
 cask 'font-jetbrains-mono'
 
